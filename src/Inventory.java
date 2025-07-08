@@ -12,25 +12,58 @@ public class Inventory {
 
     public static void addBook(Book book) {
         books.put(book.getIsbn(), book);
+        System.out.println("Book with isbn " + book.getIsbn() + " added successfully");
     }
 
-    public static List<Book> removeOutDatedBooks(int years){
 
+//    public static List<Book> removeOutDatedBooks(int years){
+//
+//        List<Book> outDatedBooks = new ArrayList<>();
+//
+//        int currentYear = LocalDate.now().getYear();
+//
+//        for (Map.Entry<String, Book> entry : books.entrySet()) {
+//
+//            Book book = entry.getValue();
+//            String isbn = entry.getKey();
+//
+//            int publishedYear = Integer.parseInt(book.getYear());
+//
+//            // outdated book
+//            if(currentYear - publishedYear >= years){
+//                outDatedBooks.add(book);
+//
+//                // delete outdated book.
+//                books.remove(isbn);
+//
+//                System.out.println("Book published in " + book.getYear() + " removed successfully");
+//            }
+//        }
+//        return outDatedBooks;
+//    }
+
+
+    public static List<Book> removeOutDatedBooks(int years) {
         List<Book> outDatedBooks = new ArrayList<>();
+        List<String> keysToRemove = new ArrayList<>();
         int currentYear = LocalDate.now().getYear();
 
-        for (String key : books.keySet()){
-
-            Book book = books.get(key);
+        for (Map.Entry<String, Book> entry : books.entrySet()) {
+            Book book = entry.getValue();
             int publishedYear = Integer.parseInt(book.getYear());
 
-            // outdated book
-            if(currentYear - publishedYear >= years){
+            if (currentYear - publishedYear >= years) {
                 outDatedBooks.add(book);
-                // delete outdated book.
-                books.remove(key);
+                keysToRemove.add(entry.getKey());
             }
         }
+
+        // Remove after iteration
+        for (String key : keysToRemove) {
+            books.remove(key);
+            System.out.println("Book removed successfully");
+        }
+
         return outDatedBooks;
     }
 
@@ -55,6 +88,9 @@ public class Inventory {
         if((book instanceof PaperBook)){
 
             PaperBook paperBook = (PaperBook) book;
+
+            if(quantity > paperBook.getStock())
+                throw new IllegalArgumentException("there is not enough books in the stock.");
 
             int updatedStock = paperBook.getStock() - quantity;
 
